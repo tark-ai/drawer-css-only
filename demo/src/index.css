@@ -68,6 +68,20 @@ body {
 .btn--full { width: 100%; }
 
 /* Drawer content styles */
+.drawer-content {
+  padding: 0.5rem 1.5rem 2rem;
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom, 0px));
+}
+.drawer[data-direction="left"] .drawer-content,
+.drawer[data-direction="right"] .drawer-content {
+  padding: 1.5rem;
+  padding-left: 2.5rem;
+}
+.drawer[data-direction="top"] .drawer-content {
+  padding-bottom: 1.5rem;
+  padding-top: 0.5rem;
+}
+
 .drawer h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 0.5rem; }
 .drawer p { color: hsl(0 0% 40%); font-size: 0.9375rem; line-height: 1.5; margin-bottom: 1rem; }
 @media (prefers-color-scheme: dark) { .drawer p { color: hsl(0 0% 60%); } }

@@ -49,7 +49,7 @@ export default function App() {
 
       {/* Form Drawer - direction is responsive */}
       <Drawer.Root direction={responsiveDirection}>
-        <Drawer.Content ref={formRef}>
+        <Drawer.Content ref={formRef} closeOnOutsideClick={false}>
           <Drawer.Handle />
           <div className="drawer-content">
             <Drawer.Title>Create Issue</Drawer.Title>

@@ -73,10 +73,13 @@ function Root({ children, direction }: RootProps) {
 }
 
 /* ===== Content ===== */
-interface ContentProps extends Omit<ComponentPropsWithoutRef<'dialog'>, 'open'> {}
+interface ContentProps extends Omit<ComponentPropsWithoutRef<'dialog'>, 'open'> {
+  /** Close when clicking outside the drawer (default: true) */
+  closeOnOutsideClick?: boolean
+}
 
 const Content = forwardRef<HTMLDialogElement, ContentProps>(
-  ({ children, className, ...props }, ref) => {
+  ({ children, className, closeOnOutsideClick = true, ...props }, ref) => {
     const { direction } = useDrawerContext()
 
     return (
@@ -87,7 +90,7 @@ const Content = forwardRef<HTMLDialogElement, ContentProps>(
         onClick={(e) => {
           props.onClick?.(e)
           // Backdrop click - only if clicking the dialog element itself
-          if (e.target === e.currentTarget) {
+          if (closeOnOutsideClick && e.target === e.currentTarget) {
             e.currentTarget.close()
           }
         }}

@@ -121,6 +121,7 @@ ref.current?.close()
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `ref` | `Ref<HTMLDialogElement>` | - | Ref to control the dialog |
+| `closeOnOutsideClick` | `boolean` | `true` | Close when clicking outside the drawer |
 | `className` | `string` | - | Additional CSS classes |
 | `...props` | `DialogHTMLAttributes` | - | All native dialog props |
 
@@ -263,6 +264,7 @@ open(drawer)
 | `content` | `string` | `''` | HTML content |
 | `handle` | `boolean` | `true` | Include drag handle |
 | `className` | `string` | `''` | Additional CSS classes |
+| `closeOnOutsideClick` | `boolean` | `true` | Close when clicking outside |
 
 **Returns:** `HTMLDialogElement`
 
@@ -387,6 +389,39 @@ No setup required.
 
 ---
 
+## Preventing Outside Click Close
+
+By default, clicking the backdrop closes the drawer. Disable this for forms or when accidental dismissal could cause data loss.
+
+### React
+
+```tsx
+<Drawer.Content ref={ref} closeOnOutsideClick={false}>
+  {/* Form content - won't close on backdrop click */}
+</Drawer.Content>
+```
+
+### Vanilla JS
+
+```ts
+const drawer = create({
+  id: 'form-drawer',
+  closeOnOutsideClick: false
+})
+```
+
+### Vanilla HTML
+
+```html
+<dialog class="drawer" data-close-on-outside-click="false">
+  <!-- Won't close on backdrop click -->
+</dialog>
+```
+
+> **Note:** Users can still close with Escape key (native dialog behavior) or explicit close buttons.
+
+---
+
 ## Theming
 
 ### CSS Custom Properties
@@ -395,17 +430,26 @@ Override any of these CSS custom properties to customize the drawer:
 
 ```css
 :root {
-  /* Colors */
+  /* Visual */
   --drawer-bg: #fff;
-  --drawer-backdrop: hsl(0 0% 0% / 0.4);
-  --drawer-handle: hsl(0 0% 80%);
-
-  /* Dimensions */
   --drawer-radius: 24px;
+  --drawer-backdrop: hsl(0 0% 0% / 0.4);
+  --drawer-backdrop-blur: 4px;
+
+  /* Sizing */
   --drawer-max-width: 500px;
   --drawer-max-height: 96dvh;
 
-  /* Shadows (direction-specific) */
+  /* Handle */
+  --drawer-handle-bg: hsl(0 0% 80%);
+  --drawer-handle-bg-hover: hsl(0 0% 60%);
+  --drawer-handle-width: 48px;
+  --drawer-handle-width-hover: 56px;
+  --drawer-handle-height: 5px;
+  --drawer-handle-padding-block: 1rem 0.5rem;
+  --drawer-handle-padding-inline: 0;
+
+  /* Shadows */
   --drawer-shadow-bottom: 0 -10px 60px hsl(0 0% 0% / 0.12), 0 -4px 20px hsl(0 0% 0% / 0.08);
   --drawer-shadow-top: 0 10px 60px hsl(0 0% 0% / 0.12), 0 4px 20px hsl(0 0% 0% / 0.08);
   --drawer-shadow-right: -10px 0 60px hsl(0 0% 0% / 0.12), -4px 0 20px hsl(0 0% 0% / 0.08);
@@ -415,26 +459,71 @@ Override any of these CSS custom properties to customize the drawer:
   --drawer-duration: 0.5s;
   --drawer-duration-close: 0.35s;
   --drawer-ease: cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* Nesting effects */
+  --drawer-nested-scale: 0.94;
+  --drawer-nested-offset: 20px;
+  --drawer-nested-brightness: 0.92;
+  --drawer-nested-backdrop: hsl(0 0% 0% / 0.15);
 }
 ```
 
 ### All Variables Reference
 
+#### Visual
+
 | Variable | Default (Light) | Default (Dark) | Description |
 |----------|-----------------|----------------|-------------|
 | `--drawer-bg` | `#fff` | `hsl(0 0% 12%)` | Background color |
+| `--drawer-radius` | `24px` | Same | Base border radius value |
+| `--drawer-border-radius` | Direction-based | Same | Full border-radius override (e.g., `16px 16px 0 0`) |
 | `--drawer-backdrop` | `hsl(0 0% 0% / 0.4)` | Same | Backdrop overlay color |
-| `--drawer-handle` | `hsl(0 0% 80%)` | `hsl(0 0% 35%)` | Handle indicator color |
-| `--drawer-radius` | `24px` | Same | Border radius |
-| `--drawer-max-width` | `500px` | Same | Maximum width |
-| `--drawer-max-height` | `96dvh` | Same | Maximum height (uses dynamic viewport) |
-| `--drawer-shadow-bottom` | See above | Darker | Shadow for bottom drawer |
-| `--drawer-shadow-top` | See above | Darker | Shadow for top drawer |
-| `--drawer-shadow-left` | See above | Darker | Shadow for left drawer |
-| `--drawer-shadow-right` | See above | Darker | Shadow for right drawer |
-| `--drawer-duration` | `0.5s` | Same | Open animation duration |
-| `--drawer-duration-close` | `0.35s` | Same | Close animation duration |
-| `--drawer-ease` | `cubic-bezier(0.32, 0.72, 0, 1)` | Same | Animation easing curve |
+| `--drawer-backdrop-blur` | `4px` | Same | Backdrop blur amount |
+
+#### Sizing
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `--drawer-max-width` | `500px` | Maximum width |
+| `--drawer-max-height` | `96dvh` | Maximum height (uses dynamic viewport) |
+
+#### Handle
+
+| Variable | Default (Light) | Default (Dark) | Description |
+|----------|-----------------|----------------|-------------|
+| `--drawer-handle-bg` | `hsl(0 0% 80%)` | `hsl(0 0% 35%)` | Handle background color |
+| `--drawer-handle-bg-hover` | `hsl(0 0% 60%)` | `hsl(0 0% 50%)` | Handle hover color |
+| `--drawer-handle-width` | `48px` | Same | Handle width |
+| `--drawer-handle-width-hover` | `56px` | Same | Handle width on hover |
+| `--drawer-handle-height` | `5px` | Same | Handle height/thickness |
+| `--drawer-handle-padding-block` | `1rem 0.5rem` | Same | Handle vertical padding |
+| `--drawer-handle-padding-inline` | `0` | Same | Handle horizontal padding |
+
+#### Shadows
+
+| Variable | Default (Light) | Default (Dark) |
+|----------|-----------------|----------------|
+| `--drawer-shadow-bottom` | `0 -10px 60px hsl(0 0% 0% / 0.12), ...` | Darker |
+| `--drawer-shadow-top` | `0 10px 60px hsl(0 0% 0% / 0.12), ...` | Darker |
+| `--drawer-shadow-left` | `10px 0 60px hsl(0 0% 0% / 0.12), ...` | Darker |
+| `--drawer-shadow-right` | `-10px 0 60px hsl(0 0% 0% / 0.12), ...` | Darker |
+
+#### Animation
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `--drawer-duration` | `0.5s` | Open animation duration |
+| `--drawer-duration-close` | `0.35s` | Close animation duration |
+| `--drawer-ease` | `cubic-bezier(0.32, 0.72, 0, 1)` | Animation easing curve |
+
+#### Nesting Effects
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `--drawer-nested-scale` | `0.94` | Scale factor for stacked drawers |
+| `--drawer-nested-offset` | `20px` | Vertical offset per nesting level |
+| `--drawer-nested-brightness` | `0.92` | Brightness multiplier for stacked drawers |
+| `--drawer-nested-backdrop` | `hsl(0 0% 0% / 0.15)` | Backdrop color for nested drawers |
 
 ### Dark Mode
 
@@ -445,7 +534,8 @@ Dark mode is automatic via `prefers-color-scheme`. Override for manual control:
 .dark .drawer,
 [data-theme="dark"] .drawer {
   --drawer-bg: hsl(0 0% 12%);
-  --drawer-handle: hsl(0 0% 35%);
+  --drawer-handle-bg: hsl(0 0% 35%);
+  --drawer-handle-bg-hover: hsl(0 0% 50%);
   --drawer-shadow-bottom: 0 -10px 60px hsl(0 0% 0% / 0.4), 0 -4px 20px hsl(0 0% 0% / 0.3);
 }
 ```
@@ -461,13 +551,13 @@ CSS Drawer works with Tailwind v4. Use CSS custom properties in your theme:
   :root {
     --drawer-bg: var(--color-white);
     --drawer-radius: var(--radius-2xl);
-    --drawer-handle: var(--color-zinc-300);
+    --drawer-handle-bg: var(--color-zinc-300);
     --drawer-backdrop: oklch(0% 0 0 / 0.4);
   }
 
   .dark {
     --drawer-bg: var(--color-zinc-900);
-    --drawer-handle: var(--color-zinc-600);
+    --drawer-handle-bg: var(--color-zinc-600);
   }
 }
 ```
@@ -494,12 +584,12 @@ For Tailwind v3, use the `theme()` function in your CSS:
   :root {
     --drawer-bg: theme('colors.white');
     --drawer-radius: theme('borderRadius.2xl');
-    --drawer-handle: theme('colors.zinc.300');
+    --drawer-handle-bg: theme('colors.zinc.300');
   }
 
   .dark {
     --drawer-bg: theme('colors.zinc.900');
-    --drawer-handle: theme('colors.zinc.600');
+    --drawer-handle-bg: theme('colors.zinc.600');
   }
 }
 ```
@@ -531,6 +621,31 @@ Override variables on individual drawers:
 </dialog>
 ```
 
+### Custom Border Radius
+
+By default, border radius is direction-aware (e.g., bottom drawer rounds top corners). Override with `--drawer-border-radius` for full control:
+
+```tsx
+{/* Round all corners */}
+<Drawer.Content
+  ref={ref}
+  style={{ '--drawer-border-radius': '16px' } as React.CSSProperties}
+>
+
+{/* Asymmetric corners */}
+<Drawer.Content
+  ref={ref}
+  style={{ '--drawer-border-radius': '24px 24px 8px 8px' } as React.CSSProperties}
+>
+```
+
+```html
+<!-- No rounded corners -->
+<dialog class="drawer" style="--drawer-border-radius: 0;">
+  ...
+</dialog>
+```
+
 ---
 
 ## CSS Classes
@@ -539,7 +654,9 @@ Override variables on individual drawers:
 |-------|-------------|
 | `.drawer` | Required on the dialog element |
 | `.drawer-handle` | Visual drag handle |
-| `.drawer-content` | Scrollable content area |
+| `.drawer-content` | Scrollable content area (structural only - add your own padding) |
+
+> **Note:** The `.drawer-content` class is intentionally unopinionated - it only provides scroll behavior (`overflow-y: auto`, `overscroll-behavior: contain`). Add your own padding to match your design system.
 
 ---
 

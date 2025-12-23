@@ -51,6 +51,8 @@ export interface CreateDrawerOptions {
   handle?: boolean
   /** Additional CSS classes */
   className?: string
+  /** Close when clicking outside (default: true) */
+  closeOnOutsideClick?: boolean
 }
 
 export interface DrawerEventHandlers {
@@ -124,20 +126,25 @@ export function getTop(): DrawerElement | null {
  * Create a drawer element programmatically
  */
 export function create(options: CreateDrawerOptions = {}): DrawerElement {
-  const { id, content = '', handle = true, className = '' } = options
+  const { id, content = '', handle = true, className = '', closeOnOutsideClick = true } = options
 
   const dialog = document.createElement('dialog') as DrawerElement
   dialog.className = `drawer ${className}`.trim()
   if (id) dialog.id = id
+  if (!closeOnOutsideClick) {
+    dialog.dataset.closeOnOutsideClick = 'false'
+  }
 
   dialog.innerHTML = `
     ${handle ? '<div class="drawer-handle"></div>' : ''}
     <div class="drawer-content">${content}</div>
   `
 
-  // Backdrop click to close
+  // Backdrop click to close (respects data attribute)
   dialog.addEventListener('click', (e) => {
-    if (e.target === dialog) dialog.close()
+    if (e.target === dialog && dialog.dataset.closeOnOutsideClick !== 'false') {
+      dialog.close()
+    }
   })
 
   return dialog
@@ -162,11 +169,12 @@ export function unmount(drawer: DrawerRef): void {
 /**
  * Initialize global backdrop-click-to-close behavior
  * Alternative to adding onclick to each drawer
+ * Respects data-close-on-outside-click="false" attribute
  */
 export function init(): () => void {
   const handler = (e: MouseEvent) => {
     const target = e.target as HTMLElement
-    if (target.matches('dialog.drawer')) {
+    if (target.matches('dialog.drawer') && (target as DrawerElement).dataset.closeOnOutsideClick !== 'false') {
       ;(target as DrawerElement).close()
     }
   }
@@ -215,12 +223,14 @@ export function subscribe(
  * React-friendly hook helper - returns props to spread on dialog
  * Usage: <dialog {...drawer.props('my-drawer')} />
  */
-export function props(id: string) {
+export function props(id: string, options?: { closeOnOutsideClick?: boolean }) {
+  const closeOnOutsideClick = options?.closeOnOutsideClick ?? true
   return {
     id,
     className: 'drawer',
+    'data-close-on-outside-click': closeOnOutsideClick ? undefined : 'false',
     onClick: (e: MouseEvent) => {
-      if (e.target === e.currentTarget) {
+      if (closeOnOutsideClick && e.target === e.currentTarget) {
         ;(e.currentTarget as DrawerElement).close()
       }
     },
