@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { useRef, useState } from 'react'
 import { Drawer } from 'css-drawer/react'
 import { useIsMobile } from './hooks/useMediaQuery'
 
@@ -7,7 +7,13 @@ export default function App() {
   const confirmRef = useRef<HTMLDialogElement>(null)
   const successRef = useRef<HTMLDialogElement>(null)
   const bottomRef = useRef<HTMLDialogElement>(null)
-  const rightRef = useRef<HTMLDialogElement>(null)
+
+  // Controlled mode example
+  const [rightOpen, setRightOpen] = useState(false)
+
+  // Nested controlled mode example
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
   const isMobile = useIsMobile(768)
   const responsiveDirection = isMobile ? undefined : 'right'
@@ -40,9 +46,16 @@ export default function App() {
 
           <button
             className="btn btn--secondary"
-            onClick={() => rightRef.current?.showModal()}
+            onClick={() => setRightOpen(true)}
           >
-            Right Drawer
+            Right Drawer (Controlled)
+          </button>
+
+          <button
+            className="btn btn--secondary"
+            onClick={() => setSettingsOpen(true)}
+          >
+            Nested (Controlled)
           </button>
         </div>
       </main>
@@ -50,7 +63,7 @@ export default function App() {
       {/* Form Drawer - direction is responsive */}
       <Drawer.Root direction={responsiveDirection}>
         <Drawer.Content ref={formRef} closeOnOutsideClick={false}>
-          <Drawer.Handle />
+          {isMobile && <Drawer.Handle />}
           <div className="drawer-content">
             <Drawer.Title>Create Issue</Drawer.Title>
             <Drawer.Description>
@@ -117,7 +130,7 @@ export default function App() {
       {/* Confirm Drawer - nested on top of form */}
       <Drawer.Root direction={responsiveDirection}>
         <Drawer.Content ref={confirmRef}>
-          <Drawer.Handle />
+          {isMobile && <Drawer.Handle />}
           <div className="drawer-content" style={{ textAlign: 'center', paddingTop: '1rem' }}>
             <Drawer.Title>Confirm Submission?</Drawer.Title>
             <Drawer.Description>
@@ -144,7 +157,7 @@ export default function App() {
       {/* Success Drawer */}
       <Drawer.Root direction={responsiveDirection}>
         <Drawer.Content ref={successRef}>
-          <Drawer.Handle />
+          {isMobile && <Drawer.Handle />}
           <div className="drawer-content" style={{ textAlign: 'center', paddingTop: '1rem' }}>
             <div style={{
               width: 56,
@@ -194,20 +207,78 @@ export default function App() {
         </Drawer.Content>
       </Drawer.Root>
 
-      {/* Right Drawer */}
+      {/* Right Drawer - Controlled Mode */}
       <Drawer.Root direction="right">
-        <Drawer.Content ref={rightRef}>
+        <Drawer.Content open={rightOpen} onOpenChange={setRightOpen}>
           <div className="drawer-content">
-            <Drawer.Title>Right Drawer</Drawer.Title>
+            <Drawer.Title>Right Drawer (Controlled)</Drawer.Title>
             <Drawer.Description>
-              Opens from the right. Great for desktop sidepanels.
+              Uses React state instead of refs. Open: {rightOpen ? 'true' : 'false'}
             </Drawer.Description>
             <button
               className="btn btn--secondary btn--full"
-              onClick={() => rightRef.current?.close()}
+              onClick={() => setRightOpen(false)}
             >
               Close
             </button>
+          </div>
+        </Drawer.Content>
+      </Drawer.Root>
+
+      {/* Nested Drawers - Controlled Mode */}
+      <Drawer.Root direction={responsiveDirection}>
+        <Drawer.Content open={settingsOpen} onOpenChange={setSettingsOpen}>
+          {isMobile && <Drawer.Handle />}
+          <div className="drawer-content">
+            <Drawer.Title>Settings</Drawer.Title>
+            <Drawer.Description>
+              Nested drawers using controlled mode.
+            </Drawer.Description>
+            <div className="actions" style={{ flexDirection: 'column' }}>
+              <button
+                className="btn btn--secondary btn--full"
+                onClick={() => setDeleteConfirmOpen(true)}
+                style={{ color: 'hsl(0 84% 60%)' }}
+              >
+                Delete Account
+              </button>
+              <button
+                className="btn btn--secondary btn--full"
+                onClick={() => setSettingsOpen(false)}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Drawer.Content>
+      </Drawer.Root>
+
+      <Drawer.Root direction={responsiveDirection}>
+        <Drawer.Content open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+          {isMobile && <Drawer.Handle />}
+          <div className="drawer-content" style={{ textAlign: 'center', paddingTop: '1rem' }}>
+            <Drawer.Title>Are you sure?</Drawer.Title>
+            <Drawer.Description>
+              This action cannot be undone.
+            </Drawer.Description>
+            <div className="actions" style={{ flexDirection: 'column' }}>
+              <button
+                className="btn btn--full"
+                style={{ background: 'hsl(0 84% 60%)', color: 'white' }}
+                onClick={() => {
+                  setDeleteConfirmOpen(false)
+                  setSettingsOpen(false)
+                }}
+              >
+                Yes, Delete
+              </button>
+              <button
+                className="btn btn--secondary btn--full"
+                onClick={() => setDeleteConfirmOpen(false)}
+              >
+                Cancel
+              </button>
+            </div>
           </div>
         </Drawer.Content>
       </Drawer.Root>

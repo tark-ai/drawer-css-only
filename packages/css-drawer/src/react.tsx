@@ -2,6 +2,8 @@ import {
   createContext,
   useContext,
   forwardRef,
+  useEffect,
+  useRef,
   type ReactNode,
   type ComponentPropsWithoutRef,
 } from 'react'
@@ -74,19 +76,41 @@ function Root({ children, direction }: RootProps) {
 
 /* ===== Content ===== */
 interface ContentProps extends Omit<ComponentPropsWithoutRef<'dialog'>, 'open'> {
+  /** Controlled open state */
+  open?: boolean
+  /** Called when open state changes */
+  onOpenChange?: (open: boolean) => void
   /** Close when clicking outside the drawer (default: true) */
   closeOnOutsideClick?: boolean
 }
 
 const Content = forwardRef<HTMLDialogElement, ContentProps>(
-  ({ children, className, closeOnOutsideClick = true, ...props }, ref) => {
+  ({ children, className, open, onOpenChange, closeOnOutsideClick = true, ...props }, ref) => {
     const { direction } = useDrawerContext()
+    const internalRef = useRef<HTMLDialogElement>(null)
+    const dialogRef = (ref as React.RefObject<HTMLDialogElement>) || internalRef
+
+    useEffect(() => {
+      const dialog = dialogRef.current
+      if (!dialog) return
+
+      if (open && !dialog.open) {
+        dialog.showModal()
+        onOpenChange?.(true)
+      } else if (open === false && dialog.open) {
+        dialog.close()
+      }
+    }, [open])
 
     return (
       <dialog
-        ref={ref}
+        ref={dialogRef}
         className={`drawer ${className ?? ''}`.trim()}
         data-direction={direction}
+        onClose={(e) => {
+          props.onClose?.(e)
+          onOpenChange?.(false)
+        }}
         onClick={(e) => {
           props.onClick?.(e)
           // Backdrop click - only if clicking the dialog element itself
