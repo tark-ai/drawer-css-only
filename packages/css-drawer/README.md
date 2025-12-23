@@ -387,37 +387,149 @@ No setup required.
 
 ---
 
-## CSS Customization
+## Theming
 
-Override CSS custom properties:
+### CSS Custom Properties
+
+Override any of these CSS custom properties to customize the drawer:
 
 ```css
 :root {
+  /* Colors */
   --drawer-bg: #fff;
+  --drawer-backdrop: hsl(0 0% 0% / 0.4);
+  --drawer-handle: hsl(0 0% 80%);
+
+  /* Dimensions */
   --drawer-radius: 24px;
   --drawer-max-width: 500px;
   --drawer-max-height: 96dvh;
-  --drawer-backdrop: hsl(0 0% 0% / 0.4);
-  --drawer-handle: hsl(0 0% 80%);
+
+  /* Shadows (direction-specific) */
+  --drawer-shadow-bottom: 0 -10px 60px hsl(0 0% 0% / 0.12), 0 -4px 20px hsl(0 0% 0% / 0.08);
+  --drawer-shadow-top: 0 10px 60px hsl(0 0% 0% / 0.12), 0 4px 20px hsl(0 0% 0% / 0.08);
+  --drawer-shadow-right: -10px 0 60px hsl(0 0% 0% / 0.12), -4px 0 20px hsl(0 0% 0% / 0.08);
+  --drawer-shadow-left: 10px 0 60px hsl(0 0% 0% / 0.12), 4px 0 20px hsl(0 0% 0% / 0.08);
+
+  /* Animation */
   --drawer-duration: 0.5s;
   --drawer-duration-close: 0.35s;
   --drawer-ease: cubic-bezier(0.32, 0.72, 0, 1);
 }
 ```
 
-| Variable | Default | Description |
-|----------|---------|-------------|
-| `--drawer-bg` | `#fff` | Background color |
-| `--drawer-radius` | `24px` | Border radius |
-| `--drawer-max-width` | `500px` | Maximum width |
-| `--drawer-max-height` | `96dvh` | Maximum height |
-| `--drawer-backdrop` | `hsl(0 0% 0% / 0.4)` | Backdrop color |
-| `--drawer-handle` | `hsl(0 0% 80%)` | Handle color |
-| `--drawer-duration` | `0.5s` | Open animation duration |
-| `--drawer-duration-close` | `0.35s` | Close animation duration |
-| `--drawer-ease` | `cubic-bezier(0.32, 0.72, 0, 1)` | Animation easing |
+### All Variables Reference
 
-Dark mode is automatic via `prefers-color-scheme`.
+| Variable | Default (Light) | Default (Dark) | Description |
+|----------|-----------------|----------------|-------------|
+| `--drawer-bg` | `#fff` | `hsl(0 0% 12%)` | Background color |
+| `--drawer-backdrop` | `hsl(0 0% 0% / 0.4)` | Same | Backdrop overlay color |
+| `--drawer-handle` | `hsl(0 0% 80%)` | `hsl(0 0% 35%)` | Handle indicator color |
+| `--drawer-radius` | `24px` | Same | Border radius |
+| `--drawer-max-width` | `500px` | Same | Maximum width |
+| `--drawer-max-height` | `96dvh` | Same | Maximum height (uses dynamic viewport) |
+| `--drawer-shadow-bottom` | See above | Darker | Shadow for bottom drawer |
+| `--drawer-shadow-top` | See above | Darker | Shadow for top drawer |
+| `--drawer-shadow-left` | See above | Darker | Shadow for left drawer |
+| `--drawer-shadow-right` | See above | Darker | Shadow for right drawer |
+| `--drawer-duration` | `0.5s` | Same | Open animation duration |
+| `--drawer-duration-close` | `0.35s` | Same | Close animation duration |
+| `--drawer-ease` | `cubic-bezier(0.32, 0.72, 0, 1)` | Same | Animation easing curve |
+
+### Dark Mode
+
+Dark mode is automatic via `prefers-color-scheme`. Override for manual control:
+
+```css
+/* Force dark mode */
+.dark .drawer,
+[data-theme="dark"] .drawer {
+  --drawer-bg: hsl(0 0% 12%);
+  --drawer-handle: hsl(0 0% 35%);
+  --drawer-shadow-bottom: 0 -10px 60px hsl(0 0% 0% / 0.4), 0 -4px 20px hsl(0 0% 0% / 0.3);
+}
+```
+
+### Tailwind CSS v4
+
+CSS Drawer works with Tailwind v4. Use CSS custom properties in your theme:
+
+```css
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --drawer-bg: var(--color-white);
+    --drawer-radius: var(--radius-2xl);
+    --drawer-handle: var(--color-zinc-300);
+    --drawer-backdrop: oklch(0% 0 0 / 0.4);
+  }
+
+  .dark {
+    --drawer-bg: var(--color-zinc-900);
+    --drawer-handle: var(--color-zinc-600);
+  }
+}
+```
+
+You can also pass Tailwind classes directly to components:
+
+```tsx
+<Drawer.Content ref={ref} className="bg-white dark:bg-zinc-900">
+  <Drawer.Handle className="bg-zinc-300 dark:bg-zinc-600" />
+  <div className="drawer-content">
+    <Drawer.Title className="text-xl font-semibold">Title</Drawer.Title>
+  </div>
+</Drawer.Content>
+```
+
+> **Note:** Base drawer styles have equal specificity to Tailwind utilities. For guaranteed overrides, use CSS custom properties or increase specificity with a wrapper class.
+
+### Tailwind CSS v3
+
+For Tailwind v3, use the `theme()` function in your CSS:
+
+```css
+@layer base {
+  :root {
+    --drawer-bg: theme('colors.white');
+    --drawer-radius: theme('borderRadius.2xl');
+    --drawer-handle: theme('colors.zinc.300');
+  }
+
+  .dark {
+    --drawer-bg: theme('colors.zinc.900');
+    --drawer-handle: theme('colors.zinc.600');
+  }
+}
+```
+
+### Per-Drawer Customization
+
+Override variables on individual drawers:
+
+```tsx
+<Drawer.Content
+  ref={ref}
+  style={{
+    '--drawer-bg': '#f0f0f0',
+    '--drawer-radius': '16px',
+    '--drawer-max-width': '400px'
+  } as React.CSSProperties}
+>
+  ...
+</Drawer.Content>
+```
+
+```html
+<!-- Vanilla HTML -->
+<dialog
+  class="drawer"
+  style="--drawer-bg: #f0f0f0; --drawer-radius: 16px;"
+>
+  ...
+</dialog>
+```
 
 ---
 
