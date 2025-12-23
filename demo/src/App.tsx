@@ -38,6 +38,35 @@ export default function App() {
                     <label htmlFor="desc">Description</label>
                     <textarea id="desc" placeholder="Describe the issue..." />
                   </div>
+                  <div className="form-group">
+                    <label htmlFor="priority">Priority</label>
+                    <select id="priority">
+                      <option value="low">Low</option>
+                      <option value="medium">Medium</option>
+                      <option value="high">High</option>
+                      <option value="critical">Critical</option>
+                    </select>
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="assignee">Assignee</label>
+                    <input type="text" id="assignee" placeholder="Enter assignee name..." />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="labels">Labels</label>
+                    <input type="text" id="labels" placeholder="bug, feature, docs..." />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="due-date">Due Date</label>
+                    <input type="date" id="due-date" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="estimate">Time Estimate (hours)</label>
+                    <input type="number" id="estimate" placeholder="4" min="0" />
+                  </div>
+                  <div className="form-group">
+                    <label htmlFor="notes">Additional Notes</label>
+                    <textarea id="notes" placeholder="Any extra context..." />
+                  </div>
                   <div className="actions">
                     <Drawer.Close className="btn btn--secondary">
                       Cancel

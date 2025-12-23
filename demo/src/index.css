@@ -52,7 +52,7 @@ body {
 
 .btn {
   padding: 0.75rem 1.25rem;
-  font: 600 0.9375rem/1 inherit;
+  font: 600 1rem/1 inherit;
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -74,24 +74,26 @@ body {
 
 .form-group { margin-bottom: 1rem; }
 .form-group label { display: block; font-size: 0.875rem; font-weight: 500; margin-bottom: 0.5rem; }
-.form-group input, .form-group textarea {
+.form-group input, .form-group textarea, .form-group select {
   width: 100%;
   padding: 0.75rem 1rem;
-  font: 1rem/1.5 inherit;
+  font-size: 16px; /* Prevents iOS zoom */
+  line-height: 1.5;
+  font-family: inherit;
   color: inherit;
   background: var(--drawer-bg);
   border: 1.5px solid hsl(0 0% 80%);
   border-radius: 8px;
   transition: border-color 0.2s, box-shadow 0.2s;
 }
-.form-group input:focus, .form-group textarea:focus {
+.form-group input:focus, .form-group textarea:focus, .form-group select:focus {
   outline: none;
   border-color: hsl(220 90% 56%);
   box-shadow: 0 0 0 3px hsl(220 90% 56% / 0.2);
 }
 .form-group textarea { min-height: 80px; resize: vertical; }
 @media (prefers-color-scheme: dark) {
-  .form-group input, .form-group textarea { border-color: hsl(0 0% 25%); }
+  .form-group input, .form-group textarea, .form-group select { border-color: hsl(0 0% 25%); }
 }
 
 .actions { display: flex; gap: 0.75rem; margin-top: 1.5rem; }
