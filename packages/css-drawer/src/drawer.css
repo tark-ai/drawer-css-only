@@ -272,6 +272,8 @@ body:has(.drawer[open]) {
   overflow-x: hidden;
   overflow-y: auto;
   overscroll-behavior: contain;
+  flex: 1;
+  min-height: 0;
 }
 
 /* Content sizing for directions */
