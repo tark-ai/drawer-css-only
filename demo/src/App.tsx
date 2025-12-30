@@ -7,6 +7,8 @@ export default function App() {
   const confirmRef = useRef<HTMLDialogElement>(null)
   const successRef = useRef<HTMLDialogElement>(null)
   const bottomRef = useRef<HTMLDialogElement>(null)
+  const modalRef = useRef<HTMLDialogElement>(null)
+  const nestedModalRef = useRef<HTMLDialogElement>(null)
 
   // Controlled mode example
   const [rightOpen, setRightOpen] = useState(false)
@@ -42,6 +44,13 @@ export default function App() {
             onClick={() => bottomRef.current?.showModal()}
           >
             Bottom Drawer
+          </button>
+
+          <button
+            className="btn btn--secondary"
+            onClick={() => modalRef.current?.showModal()}
+          >
+            Modal
           </button>
 
           <button
@@ -200,6 +209,50 @@ export default function App() {
             <button
               className="btn btn--secondary btn--full"
               onClick={() => bottomRef.current?.close()}
+            >
+              Close
+            </button>
+          </div>
+        </Drawer.Content>
+      </Drawer.Root>
+
+      {/* Modal */}
+      <Drawer.Root direction="modal">
+        <Drawer.Content ref={modalRef}>
+          <div className="drawer-content" style={{ textAlign: 'center', paddingTop: '1rem' }}>
+            <Drawer.Title>Centered Modal</Drawer.Title>
+            <Drawer.Description>
+              Uses direction="modal" to open as a centered dialog with scale animation.
+            </Drawer.Description>
+            <div className="actions" style={{ flexDirection: 'column' }}>
+              <button
+                className="btn btn--primary btn--full"
+                onClick={() => nestedModalRef.current?.showModal()}
+              >
+                Open Nested Modal
+              </button>
+              <button
+                className="btn btn--secondary btn--full"
+                onClick={() => modalRef.current?.close()}
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </Drawer.Content>
+      </Drawer.Root>
+
+      {/* Nested Modal */}
+      <Drawer.Root direction="modal">
+        <Drawer.Content ref={nestedModalRef}>
+          <div className="drawer-content" style={{ textAlign: 'center', paddingTop: '1rem' }}>
+            <Drawer.Title>Nested Modal</Drawer.Title>
+            <Drawer.Description>
+              Modals can stack just like drawers.
+            </Drawer.Description>
+            <button
+              className="btn btn--primary btn--full"
+              onClick={() => nestedModalRef.current?.close()}
             >
               Close
             </button>

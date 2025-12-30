@@ -2,6 +2,7 @@
  * CSS Drawer - Headless drawer component
  * Works with any framework: React, Vue, Svelte, vanilla JS
  */
+import './drawer.css'
 
 /* ===== Auto-enable accessibility for stacked drawers ===== */
 if (typeof window !== 'undefined') {
@@ -42,11 +43,15 @@ export type DrawerElement = HTMLDialogElement
 
 export type DrawerRef = string | DrawerElement | null | undefined
 
+export type DrawerDirection = 'bottom' | 'top' | 'left' | 'right' | 'modal'
+
 export interface CreateDrawerOptions {
   /** Drawer ID */
   id?: string
   /** HTML content for the drawer */
   content?: string
+  /** Direction the drawer opens from (default: 'bottom') */
+  direction?: DrawerDirection
   /** Include drag handle (default: true) */
   handle?: boolean
   /** Additional CSS classes */
@@ -126,11 +131,12 @@ export function getTop(): DrawerElement | null {
  * Create a drawer element programmatically
  */
 export function create(options: CreateDrawerOptions = {}): DrawerElement {
-  const { id, content = '', handle = true, className = '', closeOnOutsideClick = true } = options
+  const { id, content = '', direction, handle = true, className = '', closeOnOutsideClick = true } = options
 
   const dialog = document.createElement('dialog') as DrawerElement
   dialog.className = `drawer ${className}`.trim()
   if (id) dialog.id = id
+  if (direction) dialog.dataset.direction = direction
   if (!closeOnOutsideClick) {
     dialog.dataset.closeOnOutsideClick = 'false'
   }

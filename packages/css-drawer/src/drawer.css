@@ -25,6 +25,7 @@
   --drawer-shadow-top: 0 10px 60px hsl(0 0% 0% / 0.12), 0 4px 20px hsl(0 0% 0% / 0.08);
   --drawer-shadow-right: -10px 0 60px hsl(0 0% 0% / 0.12), -4px 0 20px hsl(0 0% 0% / 0.08);
   --drawer-shadow-left: 10px 0 60px hsl(0 0% 0% / 0.12), 4px 0 20px hsl(0 0% 0% / 0.08);
+  --drawer-shadow-modal: 0 25px 50px -12px hsl(0 0% 0% / 0.25);
 
   /* Animation */
   --drawer-duration: 0.5s;
@@ -47,6 +48,7 @@
     --drawer-shadow-top: 0 10px 60px hsl(0 0% 0% / 0.4), 0 4px 20px hsl(0 0% 0% / 0.3);
     --drawer-shadow-right: -10px 0 60px hsl(0 0% 0% / 0.4), -4px 0 20px hsl(0 0% 0% / 0.3);
     --drawer-shadow-left: 10px 0 60px hsl(0 0% 0% / 0.4), 4px 0 20px hsl(0 0% 0% / 0.3);
+    --drawer-shadow-modal: 0 25px 50px -12px hsl(0 0% 0% / 0.5);
   }
 }
 
@@ -167,6 +169,30 @@ body:has(.drawer[open]) {
   height: auto;
   max-height: var(--drawer-max-height);
   box-shadow: var(--drawer-shadow-top);
+}
+
+/* Modal (centered) */
+.drawer[data-direction="modal"] {
+  --_translate-closed: 0 0;
+  --_border-radius: var(--drawer-radius);
+  inset: 0;
+  margin: auto;
+  width: fit-content;
+  max-width: var(--drawer-max-width);
+  height: fit-content;
+  max-height: var(--drawer-max-height);
+  box-shadow: var(--drawer-shadow-modal);
+  scale: var(--drawer-nested-scale);
+}
+
+.drawer[data-direction="modal"][open] {
+  scale: 1;
+}
+
+@starting-style {
+  .drawer[data-direction="modal"][open] {
+    scale: var(--drawer-nested-scale);
+  }
 }
 
 /* ===== AUTO-NESTING (up to 5 levels) ===== */

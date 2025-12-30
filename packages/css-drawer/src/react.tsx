@@ -46,7 +46,7 @@ if (typeof window !== 'undefined') {
 }
 
 /* ===== Types ===== */
-type Direction = 'bottom' | 'top' | 'left' | 'right'
+type Direction = 'bottom' | 'top' | 'left' | 'right' | 'modal'
 
 interface DrawerContextValue {
   direction?: Direction

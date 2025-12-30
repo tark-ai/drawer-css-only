@@ -3,11 +3,14 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "demo"
+    "demo",
+    "demo-angular"
   ],
   "scripts": {
     "build": "pnpm --filter css-drawer build && pnpm --filter demo build",
     "dev": "pnpm --filter demo dev",
+    "dev:angular": "pnpm --filter demo-angular start",
+    "build:angular": "pnpm --filter demo-angular build",
     "dev:lib": "pnpm --filter css-drawer dev",
     "changeset": "changeset",
     "version": "changeset version && pnpm install --lockfile-only",

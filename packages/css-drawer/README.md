@@ -58,7 +58,7 @@ function App() {
 
 ```ts
 import { open, close } from 'css-drawer'
-import 'css-drawer/styles'
+// Styles are auto-injected
 
 document.querySelector('#open-btn').onclick = () => open('my-drawer')
 ```
@@ -68,12 +68,50 @@ document.querySelector('#open-btn').onclick = () => open('my-drawer')
 
 <dialog class="drawer" id="my-drawer">
   <div class="drawer-handle"></div>
-  <div className="drawer-content">
+  <div class="drawer-content">
     <h2>Title</h2>
     <p>Description</p>
     <button onclick="this.closest('dialog').close()">Close</button>
   </div>
 </dialog>
+```
+
+### Angular
+
+Angular's build system doesn't process CSS imports from JS modules. Import styles in your global `styles.css`:
+
+```css
+/* src/styles.css */
+@import 'css-drawer/styles';
+```
+
+Then use the native dialog API in your component:
+
+```typescript
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-example',
+  template: `
+    <button (click)="openDrawer(drawer)">Open</button>
+
+    <dialog #drawer class="drawer" data-direction="modal">
+      <div class="drawer-content">
+        <h2>Title</h2>
+        <button (click)="closeDrawer(drawer)">Close</button>
+      </div>
+    </dialog>
+  `
+})
+export class ExampleComponent {
+  openDrawer(dialog: HTMLDialogElement) {
+    dialog.showModal();
+  }
+
+  closeDrawer(dialog: HTMLDialogElement) {
+    dialog.close();
+  }
+}
 ```
 
 ---
@@ -99,7 +137,7 @@ Provides context for direction. Wrap your drawer content.
 
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
-| `direction` | `'bottom' \| 'top' \| 'left' \| 'right'` | `'bottom'` | Direction the drawer opens from |
+| `direction` | `'bottom' \| 'top' \| 'left' \| 'right' \| 'modal'` | `'bottom'` | Direction the drawer opens from |
 | `children` | `ReactNode` | - | Drawer content |
 
 ### Drawer.Content
@@ -193,7 +231,7 @@ Semantic description for accessibility.
 
 ```ts
 import { open, close, closeAll } from 'css-drawer'
-import 'css-drawer/styles'
+// Styles are auto-injected
 ```
 
 ### open(drawer)
@@ -286,6 +324,7 @@ open(drawer)
 |--------|------|---------|-------------|
 | `id` | `string` | - | Drawer ID |
 | `content` | `string` | `''` | HTML content |
+| `direction` | `DrawerDirection` | `'bottom'` | Direction the drawer opens from |
 | `handle` | `boolean` | `true` | Include drag handle |
 | `className` | `string` | `''` | Additional CSS classes |
 | `closeOnOutsideClick` | `boolean` | `true` | Close when clicking outside |
@@ -377,6 +416,7 @@ const isMobile = useMediaQuery('(max-width: 768px)')
 | `top` | Opens from top |
 | `left` | Opens from left |
 | `right` | Opens from right |
+| `modal` | Centered modal with scale animation |
 
 ---
 
@@ -508,6 +548,7 @@ Override any of these CSS custom properties to customize the drawer:
   --drawer-shadow-top: 0 10px 60px hsl(0 0% 0% / 0.12), 0 4px 20px hsl(0 0% 0% / 0.08);
   --drawer-shadow-right: -10px 0 60px hsl(0 0% 0% / 0.12), -4px 0 20px hsl(0 0% 0% / 0.08);
   --drawer-shadow-left: 10px 0 60px hsl(0 0% 0% / 0.12), 4px 0 20px hsl(0 0% 0% / 0.08);
+  --drawer-shadow-modal: 0 25px 50px -12px hsl(0 0% 0% / 0.25);
 
   /* Animation */
   --drawer-duration: 0.5s;
@@ -561,6 +602,7 @@ Override any of these CSS custom properties to customize the drawer:
 | `--drawer-shadow-top` | `0 10px 60px hsl(0 0% 0% / 0.12), ...` | Darker |
 | `--drawer-shadow-left` | `10px 0 60px hsl(0 0% 0% / 0.12), ...` | Darker |
 | `--drawer-shadow-right` | `-10px 0 60px hsl(0 0% 0% / 0.12), ...` | Darker |
+| `--drawer-shadow-modal` | `0 25px 50px -12px hsl(0 0% 0% / 0.25)` | Darker |
 
 #### Animation
 
@@ -731,6 +773,7 @@ Uses `@starting-style`, `:has()`, `allow-discrete`, and `dvh` units.
 Full TypeScript support included.
 
 ```tsx
+// React
 import {
   Drawer,
   type DrawerRootProps,
@@ -738,11 +781,14 @@ import {
   type DrawerDirection
 } from 'css-drawer/react'
 
+// Vanilla JS
 import {
   open,
   close,
+  create,
   type DrawerElement,
-  type DrawerRef
+  type DrawerRef,
+  type DrawerDirection
 } from 'css-drawer'
 ```
 
