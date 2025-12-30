@@ -7,8 +7,8 @@
     "demo-angular"
   ],
   "scripts": {
-    "build": "pnpm --filter css-drawer build && pnpm --filter demo build",
-    "dev": "pnpm --filter demo dev",
+    "build": "pnpm --filter css-drawer build && pnpm --filter demo build && pnpm --filter demo-angular build",
+    "dev": "pnpm --filter demo dev && pnpm --filter demo-angular start",
     "dev:angular": "pnpm --filter demo-angular start",
     "build:angular": "pnpm --filter demo-angular build",
     "dev:lib": "pnpm --filter css-drawer dev",
