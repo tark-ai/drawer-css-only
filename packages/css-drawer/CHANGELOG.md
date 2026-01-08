@@ -1,5 +1,22 @@
 # css-drawer
 
+## 0.3.0
+
+### Minor Changes
+
+- Added topmost drawer detection APIs and optimized observer performance
+
+  **React:**
+
+  - Added `useIsTopDrawer(ref)` hook - returns `true` if the drawer is topmost
+  - Added `getTopDrawer()` utility function
+
+  **Performance:**
+
+  - Extracted MutationObserver to shared module - prevents duplicate observers when both vanilla and React packages are imported
+  - `subscribe()` now uses shared event instead of per-subscription observers
+  - Single `drawer:statechange` event for all state change listeners
+
 ## 0.2.2
 
 ### Patch Changes
