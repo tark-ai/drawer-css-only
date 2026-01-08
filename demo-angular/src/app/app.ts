@@ -1,4 +1,5 @@
 import { Component } from '@angular/core';
+import { getTop, closeAll } from 'css-drawer';
 
 @Component({
   selector: 'app-root',
@@ -23,6 +24,9 @@ import { Component } from '@angular/core';
         </button>
         <button class="btn btn--secondary" (click)="openDrawer(shareDialog)">
           Share (DOM Nested)
+        </button>
+        <button class="btn btn--secondary" (click)="openDrawer(settingsDrawer)">
+          Nested (getTop)
         </button>
       </div>
     </main>
@@ -120,6 +124,44 @@ import { Component } from '@angular/core';
         </button>
       </div>
     </dialog>
+
+    <!-- Settings Drawer (demonstrates subscribe API) -->
+    <dialog #settingsDrawer class="drawer" data-direction="bottom">
+      @if (isTopDrawer(settingsDrawer)) {
+        <div class="top-badge">Top Drawer</div>
+      }
+      <div class="drawer-content">
+        <h2>Settings</h2>
+        <p>Nested drawers using getTop(). Notice the badge only shows on the topmost drawer.</p>
+        <div class="actions">
+          <button class="btn btn--secondary btn--full" style="color: #dc2626;" (click)="openDrawer(deleteConfirmDrawer)">
+            Delete Account
+          </button>
+          <button class="btn btn--secondary btn--full" (click)="closeDrawer(settingsDrawer)">
+            Close
+          </button>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Delete Confirm Drawer -->
+    <dialog #deleteConfirmDrawer class="drawer" data-direction="bottom">
+      @if (isTopDrawer(deleteConfirmDrawer)) {
+        <div class="top-badge">Top Drawer</div>
+      }
+      <div class="drawer-content" style="text-align: center;">
+        <h2>Are you sure?</h2>
+        <p>This action cannot be undone.</p>
+        <div class="actions">
+          <button class="btn btn--full" style="background: #dc2626; color: white;" (click)="closeAllDrawers()">
+            Yes, Delete
+          </button>
+          <button class="btn btn--secondary btn--full" (click)="closeDrawer(deleteConfirmDrawer)">
+            Cancel
+          </button>
+        </div>
+      </div>
+    </dialog>
   `,
   styles: [`
     .demo {
@@ -201,6 +243,18 @@ import { Component } from '@angular/core';
       flex-direction: column;
       gap: 0.5rem;
     }
+
+    .top-badge {
+      position: absolute;
+      top: 0.75rem;
+      right: 0.75rem;
+      padding: 0.25rem 0.5rem;
+      background: hsl(200 98% 39%);
+      color: white;
+      font-size: 0.75rem;
+      font-weight: 500;
+      border-radius: 4px;
+    }
   `],
 })
 export class App {
@@ -210,6 +264,14 @@ export class App {
 
   closeDrawer(dialog: HTMLDialogElement) {
     dialog.close();
+  }
+
+  closeAllDrawers() {
+    closeAll();
+  }
+
+  isTopDrawer(dialog: HTMLDialogElement): boolean {
+    return getTop() === dialog;
   }
 
   onShareClose() {

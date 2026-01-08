@@ -3,41 +3,7 @@
  * Works with any framework: React, Vue, Svelte, vanilla JS
  */
 import './drawer.css'
-
-/* ===== Auto-enable accessibility for stacked drawers ===== */
-if (typeof window !== 'undefined') {
-  const updateInertState = () => {
-    const openDrawers = Array.from(
-      document.querySelectorAll<HTMLDialogElement>('dialog.drawer[open]')
-    )
-    openDrawers.forEach((drawer, index) => {
-      if (index === openDrawers.length - 1) {
-        drawer.removeAttribute('inert')
-      } else {
-        drawer.setAttribute('inert', '')
-      }
-    })
-  }
-
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (
-        mutation.type === 'attributes' &&
-        mutation.attributeName === 'open' &&
-        (mutation.target as HTMLElement).classList.contains('drawer')
-      ) {
-        updateInertState()
-        break
-      }
-    }
-  })
-
-  observer.observe(document.body, {
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['open'],
-  })
-}
+import { DRAWER_STATE_CHANGE } from './observer'
 
 export type DrawerElement = HTMLDialogElement
 
@@ -205,23 +171,22 @@ export function subscribe(
   const handleClose = () => onClose?.()
   const handleCancel = () => onCancel?.()
 
-  // Use MutationObserver to detect open attribute
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (mutation.attributeName === 'open' && el.open) {
-        onOpen?.()
-      }
+  // Listen to shared drawer state change event (no per-subscription observer)
+  const handleStateChange = (e: Event) => {
+    const detail = (e as CustomEvent).detail
+    if (detail?.target === el && el.open) {
+      onOpen?.()
     }
-  })
+  }
 
   el.addEventListener('close', handleClose)
   el.addEventListener('cancel', handleCancel)
-  observer.observe(el, { attributes: true })
+  window.addEventListener(DRAWER_STATE_CHANGE, handleStateChange)
 
   return () => {
     el.removeEventListener('close', handleClose)
     el.removeEventListener('cancel', handleCancel)
-    observer.disconnect()
+    window.removeEventListener(DRAWER_STATE_CHANGE, handleStateChange)
   }
 }
 

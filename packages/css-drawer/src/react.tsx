@@ -4,46 +4,13 @@ import {
   forwardRef,
   useEffect,
   useRef,
+  useState,
   type ReactNode,
   type ComponentPropsWithoutRef,
+  type RefObject,
 } from 'react'
 import './drawer.css'
-
-/* ===== Auto-enable accessibility for stacked drawers ===== */
-if (typeof window !== 'undefined') {
-  const updateInertState = () => {
-    const openDrawers = Array.from(
-      document.querySelectorAll<HTMLDialogElement>('dialog.drawer[open]')
-    )
-    openDrawers.forEach((drawer, index) => {
-      const isTopmost = index === openDrawers.length - 1
-      if (isTopmost) {
-        drawer.removeAttribute('inert')
-      } else {
-        drawer.setAttribute('inert', '')
-      }
-    })
-  }
-
-  const observer = new MutationObserver((mutations) => {
-    for (const mutation of mutations) {
-      if (
-        mutation.type === 'attributes' &&
-        mutation.attributeName === 'open' &&
-        (mutation.target as HTMLElement).classList.contains('drawer')
-      ) {
-        updateInertState()
-        break
-      }
-    }
-  })
-
-  observer.observe(document.body, {
-    subtree: true,
-    attributes: true,
-    attributeFilter: ['open'],
-  })
-}
+import { DRAWER_STATE_CHANGE } from './observer'
 
 /* ===== Types ===== */
 type Direction = 'bottom' | 'top' | 'left' | 'right' | 'modal'
@@ -57,6 +24,48 @@ const DrawerContext = createContext<DrawerContextValue>({ direction: undefined }
 
 function useDrawerContext() {
   return useContext(DrawerContext)
+}
+
+/* ===== Utilities ===== */
+
+/**
+ * Get all open drawers
+ */
+function getOpenDrawers(): HTMLDialogElement[] {
+  if (typeof window === 'undefined') return []
+  return Array.from(document.querySelectorAll<HTMLDialogElement>('dialog.drawer[open]'))
+}
+
+/**
+ * Get the topmost open drawer
+ */
+export function getTopDrawer(): HTMLDialogElement | null {
+  const open = getOpenDrawers()
+  return open[open.length - 1] ?? null
+}
+
+/**
+ * Hook to check if a drawer is the topmost open drawer
+ * Useful for conditionally rendering content only in the top drawer
+ */
+export function useIsTopDrawer(ref: RefObject<HTMLDialogElement | null>): boolean {
+  const [isTop, setIsTop] = useState(false)
+
+  useEffect(() => {
+    const checkIsTop = () => {
+      const topDrawer = getTopDrawer()
+      setIsTop(ref.current !== null && ref.current === topDrawer)
+    }
+
+    // Initial check
+    checkIsTop()
+
+    // Listen to shared drawer state change event (single observer, not N observers)
+    window.addEventListener(DRAWER_STATE_CHANGE, checkIsTop)
+    return () => window.removeEventListener(DRAWER_STATE_CHANGE, checkIsTop)
+  }, [ref])
+
+  return isTop
 }
 
 /* ===== Root ===== */

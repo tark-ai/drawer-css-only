@@ -1,6 +1,29 @@
-import { useRef, useState } from 'react'
-import { Drawer } from 'css-drawer/react'
+import { useRef, useState, type RefObject } from 'react'
+import { Drawer, useIsTopDrawer } from 'css-drawer/react'
 import { useIsMobile } from './hooks/useMediaQuery'
+
+/** Demo component showing useIsTopDrawer hook */
+function TopDrawerBadge({ drawerRef }: { drawerRef: RefObject<HTMLDialogElement | null> }) {
+  const isTop = useIsTopDrawer(drawerRef)
+
+  if (!isTop) return null
+
+  return (
+    <div style={{
+      position: 'absolute',
+      top: '0.75rem',
+      right: '0.75rem',
+      padding: '0.25rem 0.5rem',
+      background: 'hsl(200 98% 39%)',
+      color: 'white',
+      fontSize: '0.75rem',
+      fontWeight: 500,
+      borderRadius: '4px',
+    }}>
+      Top Drawer
+    </div>
+  )
+}
 
 export default function App() {
   const formRef = useRef<HTMLDialogElement>(null)
@@ -17,6 +40,8 @@ export default function App() {
   // Nested controlled mode example
   const [settingsOpen, setSettingsOpen] = useState(false)
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
+  const settingsRef = useRef<HTMLDialogElement>(null)
+  const deleteConfirmRef = useRef<HTMLDialogElement>(null)
 
   // DOM-nested dialogs (child rendered inside parent)
   const [shareOpen, setShareOpen] = useState(false)
@@ -321,14 +346,15 @@ export default function App() {
         </Drawer.Content>
       </Drawer.Root>
 
-      {/* Nested Drawers - Controlled Mode */}
+      {/* Nested Drawers - Controlled Mode with useIsTopDrawer demo */}
       <Drawer.Root direction={responsiveDirection}>
-        <Drawer.Content open={settingsOpen} onOpenChange={setSettingsOpen}>
+        <Drawer.Content ref={settingsRef} open={settingsOpen} onOpenChange={setSettingsOpen}>
           {isMobile && <Drawer.Handle />}
+          <TopDrawerBadge drawerRef={settingsRef} />
           <div className="drawer-content">
             <Drawer.Title>Settings</Drawer.Title>
             <Drawer.Description>
-              Nested drawers using controlled mode.
+              Nested drawers using controlled mode. Notice the badge only shows on the topmost drawer.
             </Drawer.Description>
             <div className="actions" style={{ flexDirection: 'column' }}>
               <button
@@ -350,8 +376,9 @@ export default function App() {
       </Drawer.Root>
 
       <Drawer.Root direction={responsiveDirection}>
-        <Drawer.Content open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
+        <Drawer.Content ref={deleteConfirmRef} open={deleteConfirmOpen} onOpenChange={setDeleteConfirmOpen}>
           {isMobile && <Drawer.Handle />}
+          <TopDrawerBadge drawerRef={deleteConfirmRef} />
           <div className="drawer-content" style={{ textAlign: 'center', paddingTop: '1rem' }}>
             <Drawer.Title>Are you sure?</Drawer.Title>
             <Drawer.Description>

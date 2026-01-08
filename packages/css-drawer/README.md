@@ -8,7 +8,7 @@ A near drop-in replacement for [Vaul](https://vaul.emilkowal.ski) using native `
 
 | Feature | Vaul | CSS Drawer |
 |---------|------|------------|
-| Bundle size | ~12KB | **1.4KB** JS + 8KB CSS (gzip: ~2.5KB total) |
+| Bundle size | ~12KB | **~2KB** JS + 10.8KB CSS (gzip: ~3KB total) |
 | Animation engine | JavaScript | Pure CSS |
 | Nesting | Manual setup | Automatic (CSS `:has()`) |
 | Accessibility | Built-in | Automatic (native `<dialog>` + `inert`) |
@@ -89,6 +89,7 @@ Then use the native dialog API in your component:
 
 ```typescript
 import { Component } from '@angular/core';
+import { getTop, closeAll } from 'css-drawer';
 
 @Component({
   selector: 'app-example',
@@ -96,6 +97,9 @@ import { Component } from '@angular/core';
     <button (click)="openDrawer(drawer)">Open</button>
 
     <dialog #drawer class="drawer" data-direction="modal">
+      @if (isTopDrawer(drawer)) {
+        <div class="top-badge">Top Drawer</div>
+      }
       <div class="drawer-content">
         <h2>Title</h2>
         <button (click)="closeDrawer(drawer)">Close</button>
@@ -111,8 +115,18 @@ export class ExampleComponent {
   closeDrawer(dialog: HTMLDialogElement) {
     dialog.close();
   }
+
+  isTopDrawer(dialog: HTMLDialogElement): boolean {
+    return getTop() === dialog;
+  }
+
+  closeAllDrawers() {
+    closeAll();
+  }
 }
 ```
+
+> **Note:** Angular's change detection runs after template-bound events like `(click)`, so `isTopDrawer()` re-evaluates automatically. For zoneless Angular or programmatic updates outside template events, use signals.
 
 ---
 
@@ -223,6 +237,50 @@ Semantic description for accessibility.
 |------|------|---------|-------------|
 | `...props` | `HTMLAttributes<HTMLParagraphElement>` | - | All native p props |
 
+### useIsTopDrawer(ref)
+
+Hook to check if a drawer is the topmost open drawer. Useful for conditionally rendering content (like notifications) only in the top drawer.
+
+```tsx
+import { useRef } from 'react'
+import { Drawer, useIsTopDrawer } from 'css-drawer/react'
+
+function MyDrawer() {
+  const ref = useRef<HTMLDialogElement>(null)
+  const isTop = useIsTopDrawer(ref)
+
+  return (
+    <Drawer.Root>
+      <Drawer.Content ref={ref}>
+        {isTop && <div className="notification">You have new messages</div>}
+        {/* drawer content */}
+      </Drawer.Content>
+    </Drawer.Root>
+  )
+}
+```
+
+| Param | Type | Description |
+|-------|------|-------------|
+| `ref` | `RefObject<HTMLDialogElement \| null>` | Ref to the drawer dialog element |
+
+**Returns:** `boolean` - `true` if this drawer is currently the topmost open drawer
+
+The hook automatically updates when any drawer opens or closes.
+
+### getTopDrawer()
+
+Utility function to get the topmost open drawer element. Useful for imperative access.
+
+```tsx
+import { getTopDrawer } from 'css-drawer/react'
+
+const topDrawer = getTopDrawer()
+topDrawer?.close()
+```
+
+**Returns:** `HTMLDialogElement | null`
+
 ---
 
 ## Vanilla JS API
@@ -230,7 +288,7 @@ Semantic description for accessibility.
 ### Installation
 
 ```ts
-import { open, close, closeAll } from 'css-drawer'
+import { open, close, closeAll, getTop, subscribe } from 'css-drawer'
 // Styles are auto-injected
 ```
 
@@ -818,6 +876,8 @@ Full TypeScript support included.
 // React
 import {
   Drawer,
+  useIsTopDrawer,
+  getTopDrawer,
   type DrawerRootProps,
   type DrawerContentProps,
   type DrawerDirection
@@ -827,6 +887,9 @@ import {
 import {
   open,
   close,
+  getTop,
+  closeAll,
+  subscribe,
   create,
   type DrawerElement,
   type DrawerRef,
